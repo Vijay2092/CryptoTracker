@@ -1,149 +1,124 @@
-let count = 0;
-let req = {
-    method: 'GET',
-    headers: {
-        'Content-type' : 'application/json'
-    },
-    mode: 'cors',
-    cache: 'default'
-};
-let p = fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=inr&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=en");
-p.then((response) => {
-    return response.json();
-}).then((data) =>{
-    if(data && retriveData(data));
-})
-p.catch((err) => {
-    console.log(err);
+const api =
+"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=en";
+
+let apiData = [];
+let USDollar = new Intl.NumberFormat("en-US", {
+style: "currency",
+currency: "USD",
 });
+document.body.onload = fetchData;
 
-let arr;
-function retriveData(data){
-    arr = data;
-    console.log(data);
+function toggleTheme() {
+const btn = document.getElementById("darkmode");
+const body = document.getElementById("root");
+if (btn.checked) body.setAttribute("data-darkmode", "true");
+else body.setAttribute("data-darkmode", "false");
 }
 
-const panels = document.querySelectorAll(".panels > .panel");
-
-// console.log(buttons);
-// const list_table = document.querySelector("#list-view > table");
-
-const grid_btn = document.getElementById("grid");
-const list_btn = document.getElementById("list");
-const grid = document.getElementById("grid-view");
-const list = document.getElementById("list-view");
-grid.style.display = "none";
-list.style.display = "none";
-
-function showPanel(idx){
-    pushGridContent();
-    if(idx == 1){
-        list_btn.style.borderBottom = "none";
-        grid_btn.style.borderBottom = "2px solid rgb(60, 120, 205)";
-        grid.style.display = "block";
-        list.style.display = "none";
-        if(arr)pushGridContent();
-        list.innerHTML = '';
-    }else{
-        grid_btn.style.borderBottom = "none";
-        list_btn.style.borderBottom = "2px solid rgb(60, 120, 205)";
-        list.style.display = "block";
-        grid.style.display = "none";
-        if(arr)pushListContent();
-        grid.innerHTML = '';
-    }
+function handleTabSwitch(id) {
+const mainTab = document.getElementById("main_tabs");
+const main_container = document.getElementById("main_data");
+const tab1 = document.getElementById("tab1");
+const tab2 = document.getElementById("tab2");
+if (id === "tab1") {
+  mainTab.setAttribute("data-tab", "grid");
+  tab1.setAttribute("data-active", "true");
+  tab2.setAttribute("data-active", "false");
+  const main_list = document.getElementById("main_list");
+  const main_grid = append("grid");
+  if (main_list) main_container.replaceChild(main_grid, main_list);
+} else {
+  mainTab.setAttribute("data-tab", "list");
+  tab2.setAttribute("data-active", "true");
+  tab1.setAttribute("data-active", "false");
+  const main_list = append("list");
+  const main_grid = document.getElementById("main_grid");
+  if (main_grid) main_container.replaceChild(main_list, main_grid);
 }
-showPanel(1);
-
-function pushGridContent(){
-    arr.forEach(element => {
-        const container = document.createElement("div");
-        let my_str = `<div class="cards">
-        <div class="card-header">
-        <div>
-        <img class="card-img" src="${element.image}" alt="${element.name}">
-        </div>
-        <div card-tile>
-        <div>${element.symbol}</div>
-        <div>${element.name}</div>
-        </div>
-        </div>
-        
-        <div id="${element.name}" class="price_change">
-        <div >${element.price_change_percentage_24h}<span style="margin-left: 5px;">%</span></div>
-        </div>
-        
-        <div id="${element.id}" class="curret-price">
-        ₹  ${element.current_price}
-        </div>
-        
-        <div style="padding: 10px;">
-        <div style="margin-bottom: 2px; font-size:13px; color:#f3f3f3b9; padding:0 1em;">Total Volume: ${element.total_volume.toLocaleString()}</div>
-        <div style="margin-bottom: 2px; font-size:13px; color:#f3f3f3b9; padding:0 1em;">Market Cap: ${element.market_cap.toLocaleString()}</div>
-        </div>
-        </div>`
-        container.innerHTML = my_str;
-        grid.style.display = "flex";
-        grid.appendChild(container);
-        
-        const price = document.getElementById(`${element.id}`);
-        const change = document.getElementById(`${element.name}`);
-        if(element.price_change_percentage_24h < 0){
-            change.style.border = "2px solid red";
-            price.style.color = "red";
-        }
-    });
-}
-function pushListContent(){
-    const table = document.createElement("table");
-    list.appendChild(table);
-    arr.forEach((element) => {
-        const row = document.createElement("tr");
-        let str = `<td> 
-        <img class="card-img" src="${element.image}" alt="${element.name}">
-        </td>
-        <td>
-        <div card-tile>
-        <div>${element.symbol}</div>
-        <div>${element.name}</div>
-        </div>
-        </td>
-        <td>
-        <div id="${element.market_cap_rank}" class="price_change">
-        <div >${element.price_change_percentage_24h}<span style="margin-left: 5px;">%</span></div>
-        </div>
-        </td>
-        <td>
-        <div id="${element.symbol}" class="curret-price">
-        ₹  ${element.current_price}
-        </div>
-        </td>
-        <td>
-        <div style="margin-bottom: 2px; font-size:13px; color:#f3f3f3b9; padding:0 1em;">${element.total_volume.toLocaleString()}</div>
-        </td>
-        <td>
-        <div>
-        <div style="margin-bottom: 2px; font-size:13px; color:#f3f3f3b9; padding:0 1em;">${element.market_cap.toLocaleString()}</div>
-        </td>`
-        
-        row.innerHTML = str;
-        table.appendChild(row);
-        
-        const list_price = document.getElementById(`${element.symbol}`);
-        const list_change = document.getElementById(`${element.market_cap_rank}`);
-        if(element.price_change_percentage_24h < 0){
-            list_change.style.border = "2px solid red";
-            list_price.style.color = "red";
-        }
-
-    });
 }
 
+async function fetchData() {
+const main_container = document.getElementById("main_data");
+try {
+  const res = await fetch(api);
+  apiData = await res.json();
+  if (apiData.length > 0) {
+    const grid = append("grid");
+    main_container.appendChild(grid);
+  }
+} catch (error) {
+  const err = document.getElementById("error");
+  err.style.display = "block";
+} finally {
+  const spinner = document.getElementById("spinner");
+  spinner.style.display = "none";
+}
+}
 
-const checkbox = document.getElementById('flexSwitchCheckChecked');
-const body = document.getElementById('themeBody');
+function append(type) {
+const main = document.createElement("div");
+main.className = "main_" + type;
+main.id = "main_" + type;
+apiData?.forEach((item) => {
+  const main_item = document.createElement("div");
+  main_item.className = `${"main_" + type + "_item"} main_card`;
 
-checkbox.addEventListener('click', function () {
-    // Toggle the 'dark-theme' class on the body element
-    body.classList.toggle('dark-theme');
+  const main_item_head = document.createElement("div");
+  main_item_head.className = "main_item_head";
+  const main_item_body = document.createElement("div");
+  main_item_body.className = "main_" + type + "_item_body";
+  main_item_body.setAttribute(
+    "data-state",
+    (item?.price_change_percentage_24h >= 0 ? "high" : "low") ?? "high"
+  );
+
+  const item_head_left = document.createElement("div");
+  item_head_left.className = "item_head_left";
+  const item_head_img = document.createElement("img");
+  item_head_img.src = item?.image ?? "https://source.unsplash.com/random";
+  item_head_img.alt = item?.symbol ?? "Coin";
+  item_head_img.height = "48";
+  item_head_img.width = "48";
+  item_head_img.className = "rounded-circle";
+  item_head_left.appendChild(item_head_img);
+  main_item_head.appendChild(item_head_left);
+
+  const item_head_right = document.createElement("div");
+  item_head_right.className = "item_head_right";
+  const item_head_symbol = document.createElement("div");
+  item_head_symbol.className = "item_head_symbol";
+  item_head_symbol.innerText = item?.symbol ?? "Coin";
+  const item_head_name = document.createElement("div");
+  item_head_name.className = "item_head_name";
+  item_head_name.innerText = item?.name ?? "Coin";
+  item_head_right.appendChild(item_head_symbol);
+  item_head_right.appendChild(item_head_name);
+  main_item_head.appendChild(item_head_right);
+
+  main_item.appendChild(main_item_head);
+
+  const price_change_per = document.createElement("div");
+  price_change_per.className = "price_change_per";
+  price_change_per.innerText =
+    (item?.price_change_percentage_24h.toFixed(3) ?? 0) + " %";
+  const current_price = document.createElement("div");
+  current_price.className = "current_price";
+  current_price.innerText = USDollar.format(item?.current_price ?? 0);
+  const main_item_foot1 = document.createElement("div");
+  main_item_foot1.className = "main_item_foot";
+  main_item_foot1.innerText = `Total Volume: ${item?.total_volume ?? 0}`;
+  const main_item_foot2 = document.createElement("div");
+  main_item_foot2.className = "main_item_foot";
+  main_item_foot2.innerText = `Market Cap: ${USDollar.format(
+    item?.market_cap ?? 0
+  )}`;
+  main_item_body.appendChild(price_change_per);
+  main_item_body.appendChild(current_price);
+  main_item_body.appendChild(main_item_foot1);
+  main_item_body.appendChild(main_item_foot2);
+
+  main_item.appendChild(main_item_body);
+  main.appendChild(main_item);
 });
+return main;
+}
